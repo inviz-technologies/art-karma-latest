@@ -51,7 +51,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/api/v1/users",
+        `${import.meta.env.VITE_BASE_URL}/users`,
         formState
       );
       if (data) {
