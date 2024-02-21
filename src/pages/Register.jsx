@@ -212,7 +212,7 @@ const Register = () => {
             <Input
               type="number"
               name="quantityAndOrders"
-              value={formState.quantityAndOrders * 1}
+              value={formState.quantityAndOrders}
               onChange={handleInputChange}
               placeholder="Tell us the quantity and items you would like to order"
             />
