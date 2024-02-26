@@ -4,6 +4,7 @@ import { MdCheckCircle } from "react-icons/md";
 const ThankYouScreen = () => {
   return (
     <Container
+      maxW="2xl"
       textAlign="center"
       mt={20}
       border="1px solid #ccc"
