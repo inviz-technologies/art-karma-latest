@@ -9,13 +9,13 @@ import {
   Button,
   Container,
   Stack,
-  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useCustomToast from "../hooks/useCustomToast";
 
 const Register = () => {
-  const toast = useToast();
+  const { successToast, errorToast } = useCustomToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formState, setFormState] = useState({
@@ -56,14 +56,10 @@ const Register = () => {
       );
       if (data) {
         setIsLoading(false);
-        toast({
+        successToast({
           title: "Information Recieved!",
           description:
             "We've recieved your information will get back to you soon.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top",
         });
         setFormState({
           name: "",
@@ -80,13 +76,9 @@ const Register = () => {
     } catch (error) {
       console.log(error);
       setIsLoading(false);
-      toast({
+      errorToast({
         title: "Error occured",
         description: error?.response?.data?.message || "Something went wrong",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
       });
     }
   };

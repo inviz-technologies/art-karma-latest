@@ -10,12 +10,12 @@ import {
   FormLabel,
   Input,
   Text,
-  useToast,
 } from "@chakra-ui/react";
+import useCustomToast from "../hooks/useCustomToast";
 
 // eslint-disable-next-line react/prop-types
 const PaymentForm = ({ name, email, phone }) => {
-  const toast = useToast();
+  const { errorToast, successToast } = useCustomToast();
   const [isPaymentLoading, setPaymentLoading] = useState(false);
   const [paymentData, setPaymentData] = useState({
     name: name || "",
@@ -51,13 +51,9 @@ const PaymentForm = ({ name, email, phone }) => {
       }
     } catch (error) {
       console.log(error);
-      toast({
+      errorToast({
         title: "Error occured",
         description: error?.response?.data?.message || "Something went wrong",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
       });
     }
   };
@@ -88,25 +84,15 @@ const PaymentForm = ({ name, email, phone }) => {
     });
     setPaymentLoading(false);
     if (paymentResult.error) {
-      // alert(paymentResult.error.message);
-      toast({
-        title: "Error occured",
+      errorToast({
+        title: "Error Occured",
         description: paymentResult.error.message || "Something went wrong",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
       });
     } else {
       if (paymentResult.paymentIntent.status === "succeeded") {
-        // alert("Success!");
-        toast({
+        successToast({
           title: "Success!",
           description: "Payment successfull!",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top",
         });
       }
       setPaymentData({});
