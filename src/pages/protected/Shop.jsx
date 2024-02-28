@@ -19,8 +19,14 @@ import React from "react";
 import { logoSmall } from "../../assets";
 import { IoIosMenu } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
+import { CiShop } from "react-icons/ci";
+import { TiMessages } from "react-icons/ti";
 
-const Links = ["Shop", "Chat", "Cart"];
+const Links = [
+  { label: "Shop", icon: <CiShop />, link: "shop" },
+  { label: "Chat", icon: <TiMessages />, link: "chat" },
+  { label: "Cart", icon: <CiShop />, link: "cart" },
+];
 
 const NavLink = (props) => {
   const { children } = props;
@@ -35,7 +41,7 @@ const NavLink = (props) => {
         textDecoration: "none",
         // bg: useColorModeValue("gray.200", "gray.700"),
       }}
-      href={"#"}
+      href={props.to}
     >
       {children}
     </Box>
@@ -80,8 +86,13 @@ const Shop = () => {
                   spacing={4}
                   display={{ base: "none", md: "flex" }}
                 >
-                  {Links.map((link) => (
-                    <NavLink key={link}>{link}</NavLink>
+                  {Links.map((link, i) => (
+                    <NavLink to={link.link} key={i}>
+                      <Box display={"flex"} alignItems={"center"} gap={1}>
+                        {link.icon}
+                        {link.label}
+                      </Box>
+                    </NavLink>
                   ))}
                 </HStack>
               </Flex>
@@ -89,8 +100,10 @@ const Shop = () => {
               {isOpen ? (
                 <Box pb={4} display={{ md: "none" }}>
                   <Stack as={"nav"} spacing={4}>
-                    {Links.map((link) => (
-                      <NavLink key={link}>{link}</NavLink>
+                    {Links.map((link, i) => (
+                      <NavLink to={link.link} key={i}>
+                        {link.icon} {link.label}
+                      </NavLink>
                     ))}
                   </Stack>
                 </Box>
