@@ -12,10 +12,12 @@ import Shop from "./pages/protected/Shop";
 import Cart from "./pages/protected/Cart";
 import { Outlet } from "react-router-dom";
 import Chat from "./pages/protected/Chat";
+import { useSelector } from "react-redux";
 
 const PrivateRoutes = () => {
-  let auth = { token: true };
-  return auth.token ? <Outlet /> : <Navigate to="/login" />;
+  let auth = useSelector((state) => state.authSlice);
+  console.log("auth test", auth);
+  return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 
 function App() {

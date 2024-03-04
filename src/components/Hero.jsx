@@ -11,7 +11,8 @@ const Hero = () => {
       height={"30dvh"}
     >
       <Text fontSize="5xl" color={"white"}>
-        Hero
+        {location?.pathname.split("/")[1][0].toUpperCase() +
+          location?.pathname.split("/")[1].slice(1)}
       </Text>
     </Box>
   );
