@@ -41,7 +41,9 @@ function App() {
         <Route
           path="/login"
           shouldRevalidate={true}
-          element={auth.isAuthenticated && <Login />}
+          element={
+            !auth.isAuthenticated ? <Login /> : <Navigate to={"/shop"} />
+          }
         />
 
         <Route element={<PrivateRoutes />}>
