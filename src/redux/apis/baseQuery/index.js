@@ -7,7 +7,7 @@ const mutex = new Mutex();
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   prepareHeaders: (headers, { getState }) => {
-    const token = getState().generalSlice?.accessToken;
+    const token = getState().authSlice?.accessToken;
     const tempToken = getState().generalSlice?.temporaryAccessToken;
     headers.set("Accept", "application/json");
     if (token) {
@@ -26,6 +26,7 @@ export const customFetchBase = async (args, api, extraOptions) => {
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
   if (result.error?.status === 401) {
+    
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setUser,
   logout,
+  setAccessToken,
   //   selectUser,
   //   selectIsAuthenticated,
 } from "../redux/features/auth/authSlice";
@@ -25,12 +26,9 @@ const useAuth = () => {
       console.log("login response", res);
       if (res.success) {
         console.log("login response", res);
-        await localStorage.setItem(
-          "userId",
-          JSON.stringify(res?.data?.data?.user?._id)
-        );
 
         dispatch(setUser(res?.data?.data?.user));
+        dispatch(setAccessToken(res?.data?.token));
         navigate("/shop", { replace: true });
       }
     } catch (error) {

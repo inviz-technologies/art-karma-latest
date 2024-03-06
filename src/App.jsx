@@ -14,13 +14,12 @@ import { Outlet } from "react-router-dom";
 import Chat from "./pages/protected/Chat";
 import { useSelector } from "react-redux";
 
-const PrivateRoutes = () => {
-  let auth = useSelector((state) => state.authSlice);
-  console.log("auth test", auth);
-  return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
-};
-
 function App() {
+  let auth = useSelector((state) => state.authSlice);
+  const PrivateRoutes = () => {
+    console.log("auth test", auth.isAuthenticated);
+    return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  };
   return (
     <Router>
       <Routes>
@@ -28,9 +27,23 @@ function App() {
         <Route path="/register/successful" element={<ThankYouScreen />} />
         <Route path="/payment/stripe" element={<Payment />} />
 
-        <Route path="/" element={<Navigate to="/login" replace={true} />} />
+        <Route
+          path="/"
+          element={
+            auth.isAuthenticated ? (
+              <Navigate to="/shop" replace={true} />
+            ) : (
+              <Navigate to="/login" replace={true} />
+            )
+          }
+        />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          shouldRevalidate={true}
+          element={auth.isAuthenticated && <Login />}
+        />
+
         <Route element={<PrivateRoutes />}>
           <Route path="/shop" element={<Shop />} />
           <Route path="/cart" element={<Chat />} />

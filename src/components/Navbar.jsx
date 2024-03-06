@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   Flex,
   HStack,
@@ -16,6 +17,8 @@ import { CiShop } from "react-icons/ci";
 import { TiMessages } from "react-icons/ti";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { logoSmall } from "../assets";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/features/auth/authSlice";
 
 const Links = [
   { label: "Shop", icon: <CiShop />, link: "/shop" },
@@ -43,6 +46,11 @@ const NavLink = (props) => {
 };
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   return (
     <Box as="header" bg={"black"}>
       <Container py={5} maxW={"1200px"} as="nav" color={"white"}>
@@ -61,6 +69,11 @@ const Navbar = () => {
                 aria-label={"Open Menu"}
                 display={{ md: "none" }}
                 onClick={isOpen ? onClose : onOpen}
+              />
+              <Button
+                onClick={handleLogout}
+                title="Logout"
+                background={"#fff"}
               />
               <HStack spacing={8} alignItems={"center"}>
                 <Image
