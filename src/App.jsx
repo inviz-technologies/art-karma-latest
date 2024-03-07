@@ -13,11 +13,11 @@ import Cart from "./pages/protected/Cart";
 import { Outlet } from "react-router-dom";
 import Chat from "./pages/protected/Chat";
 import { useSelector } from "react-redux";
+import Product from "./pages/protected/Product";
 
 function App() {
   let auth = useSelector((state) => state.authSlice);
   const PrivateRoutes = () => {
-    console.log("auth test", auth.isAuthenticated);
     return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
   };
   return (
@@ -48,6 +48,7 @@ function App() {
 
         <Route element={<PrivateRoutes />}>
           <Route path="/shop" element={<Shop />} />
+          <Route path="/shop/:id" element={<Product />} />
           <Route path="/cart" element={<Chat />} />
           <Route path="/chat" element={<Cart />} />
         </Route>

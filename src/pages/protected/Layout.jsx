@@ -9,7 +9,6 @@ import { setPath } from "../../redux/features/path/pathSlice";
 
 const Layout = (props) => {
   const location = useLocation();
-  console.log(location.pathname.split("/")[1]);
 
   return (
     <Box minH={"100dvh"} overflowY={"auto"}>
