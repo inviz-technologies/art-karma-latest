@@ -49,8 +49,8 @@ function App() {
         <Route element={<PrivateRoutes />}>
           <Route path="/shop" element={<Shop />} />
           <Route path="/shop/:id" element={<Product />} />
-          <Route path="/cart" element={<Chat />} />
-          <Route path="/chat" element={<Cart />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/chat" element={<Chat />} />
         </Route>
         {/* <Route path="*" element={<Navigate to="/login" />} /> */}
       </Routes>
