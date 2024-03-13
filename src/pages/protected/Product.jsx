@@ -33,7 +33,6 @@ const Product = () => {
               items={images}
               lazyLoad={true}
             />
-            ;
           </Box>
           <Box w={"40%"}>
             <Text fontSize={34} fontWeight={"bold"}>
