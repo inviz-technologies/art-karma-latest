@@ -10,10 +10,11 @@ const Payment = () => {
   const name = searchParams.get("name");
   const email = searchParams.get("email");
   const phone = searchParams.get("phone");
+  const user = searchParams.get("user");
 
   return (
     <Elements stripe={stripe}>
-      <PaymentForm name={name} email={email} phone={phone} />
+      <PaymentForm user={user} name={name} email={email} phone={phone} />
     </Elements>
   );
 };
