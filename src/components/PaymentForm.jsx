@@ -14,7 +14,7 @@ import {
 import useCustomToast from "../hooks/useCustomToast";
 
 // eslint-disable-next-line react/prop-types
-const PaymentForm = ({ name, email, phone }) => {
+const PaymentForm = ({ user, name, email, phone }) => {
   const { errorToast, successToast } = useCustomToast();
   const [isPaymentLoading, setPaymentLoading] = useState(false);
   const [paymentData, setPaymentData] = useState({
@@ -40,6 +40,45 @@ const PaymentForm = ({ name, email, phone }) => {
     });
   };
 
+  const saveAdvancePayment = async (paymentRes) => {
+    try {
+      const { data } = await axios.patch(
+        `${import.meta.env.VITE_BASE_URL}/payments/save-advance-payment`,
+        {
+          email: email,
+          userId: user,
+          advancePaymentResult: paymentRes,
+        }
+      );
+      if (data) {
+        console.log(data);
+        if (paymentRes.paymentIntent.status === "succeeded") {
+          successToast({
+            title: "Success!",
+            description: "Payment successfull!",
+          });
+        }
+        setPaymentData({
+          name: name || "",
+          email: email || "",
+          address: "",
+          city: "",
+          country: "",
+          postalCode: "",
+          state: "",
+          phone: phone | "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      setPaymentLoading(false);
+      errorToast({
+        title: "Error occured",
+        description: error?.response?.data?.message || "Something went wrong",
+      });
+    }
+  };
+
   const getClientSecret = async () => {
     try {
       const { data } = await axios.post(
@@ -47,10 +86,12 @@ const PaymentForm = ({ name, email, phone }) => {
         { amount: 100 }
       );
       if (data) {
+        console.log(data);
         return data?.data?.paymentIntent?.client_secret;
       }
     } catch (error) {
       console.log(error);
+      setPaymentLoading(false);
       errorToast({
         title: "Error occured",
         description: error?.response?.data?.message || "Something went wrong",
@@ -64,6 +105,7 @@ const PaymentForm = ({ name, email, phone }) => {
       return;
     }
     setPaymentLoading(true);
+
     const clientSecret = await getClientSecret();
     const paymentResult = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
@@ -83,19 +125,15 @@ const PaymentForm = ({ name, email, phone }) => {
       },
     });
     setPaymentLoading(false);
+    console.log("Payment_Result", paymentResult);
+
     if (paymentResult.error) {
       errorToast({
         title: "Error Occured",
         description: paymentResult.error.message || "Something went wrong",
       });
     } else {
-      if (paymentResult.paymentIntent.status === "succeeded") {
-        successToast({
-          title: "Success!",
-          description: "Payment successfull!",
-        });
-      }
-      setPaymentData({});
+      await saveAdvancePayment(paymentResult);
     }
   };
 
