@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import { userAuth } from "../apis/auth.api";
 import { category } from "../apis/category.api";
 import { product } from "../apis/product.api";
+import { order } from "../apis/order.api";
 
 import authSlice from "./auth/authSlice";
 import pathSlice from "./path/pathSlice";
@@ -12,6 +13,7 @@ export default combineReducers({
   [userAuth.reducerPath]: userAuth.reducer,
   [category.reducerPath]: category.reducer,
   [product.reducerPath]: product.reducer,
+  [order.reducerPath]: order.reducer,
   authSlice,
   pathSlice,
   categorySlice,

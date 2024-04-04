@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import Product from "./pages/protected/Product";
 
 function App() {
-  let auth = useSelector((state) => state.authSlice);
+  const auth = useSelector((state) => state.authSlice);
   const PrivateRoutes = () => {
     return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
   };

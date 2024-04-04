@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useGetOrdersQuery } from "../../redux/apis/order.api";
 import Layout from "./Layout";
 import {
   VStack,
@@ -13,29 +15,59 @@ import {
   NumberDecrementStepper,
   Heading,
   Container,
+  useToast,
 } from "@chakra-ui/react";
 
 function CartItem({ item }) {
+  const [quantity, setQuantity] = useState(0);
+
+  // Handler function to update the quantity value
+  const handleQuantityChange = (value) => {
+    setQuantity(value);
+  };
+
+  // // Debounced function to update the order
+  // const debouncedUpdateOrder = debounce((quantity) => {
+  //   // Call the updateOrder mutation with the debounced quantity value
+  //   updateOrderMutation(quantity);
+  // }, 500); // Adjust the debounce delay as needed
+
+  // // Effect to trigger the debounced updateOrder function when quantity changes
+  // useEffect(() => {
+  //   debouncedUpdateOrder(quantity);
+  //   // Cleanup the debounced function on component unmount
+  //   return () => debouncedUpdateOrder.cancel();
+  // }, [quantity]); // Trigger the effect whenever quantity changes
+
   return (
     <HStack spacing={4} alignItems="center" padding={4}>
       <Image
         boxSize="100px"
         objectFit="cover"
-        src={item.image}
-        alt={item.name}
+        src={item.order?.images[0]?.imageUrl}
+        alt={item.order?.images[0]?.imageName}
       />
       <VStack align="stretch" flex="1">
-        <Text fontWeight="bold">{item.name}</Text>
-        <Text>{item.description}</Text>
+        <Text fontWeight="bold">{item.order?.name}</Text>
+        <Text>{item.order?.description}</Text>
       </VStack>
-      <NumberInput defaultValue={1} min={1} max={99} width="100px">
+      <NumberInput
+        defaultValue={quantity} // Set the default value to the quantity state
+        min={0}
+        max={99}
+        width="100px"
+        onChange={handleQuantityChange} // Update the quantity state on change
+      >
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
           <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
-      <Text fontWeight="bold">${item.price.toFixed(2)}</Text>
+      <Text fontWeight="bold">
+        ${(item.order?.price * quantity).toFixed(2)}
+      </Text>{" "}
+      {/* Calculate the total price based on quantity */}
       <Button variant="outline" colorScheme="red">
         Remove
       </Button>
@@ -44,7 +76,24 @@ function CartItem({ item }) {
 }
 
 function CartSummary({ subtotal, shippingFee }) {
+  const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const total = subtotal + shippingFee;
+
+  const handlePlaceOrder = () => {
+    setIsLoading(true);
+    // Display success toast
+    toast({
+      title:
+        "Order Request sent! You will get notified when your order is ready.",
+      status: "success",
+      duration: 3000, // milliseconds
+      isClosable: true,
+    });
+
+    setIsLoading(false);
+  };
+
   return (
     <VStack alignItems="stretch" spacing={4} marginTop={4}>
       <HStack justifyContent="space-between">
@@ -71,54 +120,72 @@ function CartSummary({ subtotal, shippingFee }) {
           ${total.toFixed(2)}
         </Text>
       </HStack>
-      <Button colorScheme="yellow" size="lg">
-        Checkout
-      </Button>
+      <HStack spacing={10}>
+        <Button
+          bg={"golden"}
+          size="lg"
+          maxW={"150px"}
+          mt={"10"}
+          isDisabled={true}
+        >
+          Checkout
+        </Button>
+        <Button
+          bg={"golden"}
+          size="lg"
+          maxW={"200px"}
+          mt={"10"}
+          onClick={handlePlaceOrder}
+          isLoading={isLoading}
+        >
+          Place Order
+        </Button>
+      </HStack>
     </VStack>
   );
 }
 
 const Cart = () => {
-  const cartItems = [
-    {
-      id: 1,
-      name: "14IN X 9IN",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      price: 279.0,
-      image: "path_to_first_image.jpg", // Replace with your image path
-    },
-    {
-      id: 2,
-      name: "12IN X 8IN",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      price: 219.0,
-      image: "path_to_second_image.jpg", // Replace with your image path
-    },
-  ];
+  const { data, isLoading, isError, error } = useGetOrdersQuery();
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price, 0);
-  const shippingFee = 100.0; // Assuming a flat shipping fee
+  if (isError) {
+    return (
+      <div>
+        Error While fetching CartItem! || {error?.response?.data?.message}
+      </div>
+    );
+  } else if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const subtotal = data?.data?.orders.reduce(
+    (total, item) => total + item?.order.price,
+    0
+  );
+  const shippingFee = 100.0;
+
+  console.log(data?.data.orders);
 
   return (
     <Layout>
       <Container
         maxW="container.xl"
         my={16}
-        // border="1px solid gray.100"
-        borderRadius="5px"
-        p={4}
+        border="1px solid #eee"
+        borderRadius="md"
+        p={6}
         bg="yellow"
       >
-        <Heading my={8}>Your Shopping Cart</Heading>
+        <Heading my={4} color="#333">
+          Items
+        </Heading>
         <VStack
           divider={<StackDivider borderColor="gray.200" />}
           spacing={4}
           align="stretch"
         >
-          {cartItems.map((item) => (
-            <CartItem key={item.id} item={item} />
+          {data?.data.orders.map((item) => (
+            <CartItem key={item._id} item={item} />
           ))}
         </VStack>
         <CartSummary subtotal={subtotal} shippingFee={shippingFee} />

@@ -1,25 +1,62 @@
-import React from "react";
 import Layout from "./Layout";
-import { Box, Button, Container, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Container, Flex, Text, useToast } from "@chakra-ui/react";
 import ImageGallery from "react-image-gallery";
 import { useParams } from "react-router-dom";
+import { useGetProductQuery } from "../../redux/apis/product.api";
+import { useAddNewOrderMutation } from "../../redux/apis/order.api";
+import { useSelector } from "react-redux";
 
 const Product = () => {
+  const toast = useToast();
   const { id } = useParams();
-  const images = [
-    {
-      original: "https://picsum.photos/id/1018/1000/600/",
-      thumbnail: "https://picsum.photos/id/1018/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1015/1000/600/",
-      thumbnail: "https://picsum.photos/id/1015/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1019/1000/600/",
-      thumbnail: "https://picsum.photos/id/1019/250/150/",
-    },
-  ];
+  const auth = useSelector((state) => state.authSlice);
+  const { data, isLoading, isError, error } = useGetProductQuery(id);
+  const [AddNewOrder, { isLoading: isPending }] = useAddNewOrderMutation();
+
+  if (isError) {
+    return (
+      <div>
+        Error While fetching Product! || {error?.response?.data?.message}
+      </div>
+    );
+  } else if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const images = data?.data?.product.images.map((image) => {
+    return { original: image.imageUrl, thumbnail: image.imageUrl };
+  });
+
+  // console.log(images);
+  // console.log(data);
+  // console.log(auth?.user);
+
+  const handleAddToCart = async (product) => {
+    try {
+      const payload = {
+        order: product._id,
+        user: auth?.user._id,
+      };
+
+      await AddNewOrder(payload).unwrap();
+
+      // Display success toast
+      toast({
+        title: "Item added to cart",
+        status: "success",
+        duration: 3000, // milliseconds
+        isClosable: true,
+      });
+    } catch (error) {
+      console.log("Error while adding item", error);
+      toast({
+        title: error?.response.data.message || "Something went wrong",
+        status: "error",
+        duration: 3000, // milliseconds
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -36,17 +73,20 @@ const Product = () => {
           </Box>
           <Box w={"40%"}>
             <Text fontSize={34} fontWeight={"bold"}>
-              12in X 13in
+              {data?.data?.product.name}
             </Text>
             <Text fontSize={34} mb={5} color={"golden"} fontWeight={"400"}>
-              $ 100.00
+              $ {data?.data?.product.price}
             </Text>
             <Text fontSize={20} mb={5} color={"gray.400"} fontWeight={"400"}>
-              Description Lorem ipsum dolor sit amet, consectetur adipisicing
-              elit. Quas voluptates, facilis doloribus obcaecati dolorem,
-              doloremque unde eius similique eveniet expedita perspiciatis ad!
+              {data?.data?.product.description}
             </Text>
-            <Button bg={"golden"} color={"white"}>
+            <Button
+              bg={"golden"}
+              color={"white"}
+              isLoading={isPending}
+              onClick={() => handleAddToCart(data?.data?.product)}
+            >
               Add to Cart
             </Button>
           </Box>

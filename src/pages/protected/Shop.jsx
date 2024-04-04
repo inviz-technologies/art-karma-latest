@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Layout from "./Layout";
 import {
   Box,
@@ -21,7 +21,7 @@ const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [query, setQuery] = useState("");
-  const { data, isLoading, refetch } = useGetCategoriesQuery();
+  const { data, isLoading } = useGetCategoriesQuery();
   const products = useGetProductsQuery(query);
 
   document.title = "The Art Karma | Products";
@@ -47,7 +47,7 @@ const Shop = () => {
 
           <List spacing={7}>
             {!isLoading &&
-              data?.data?.categories?.map((mainCategory, i) => (
+              data?.data?.categories?.map((mainCategory) => (
                 <React.Fragment key={mainCategory?._id}>
                   <ListItem
                     cursor="pointer"

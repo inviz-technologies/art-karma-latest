@@ -1,5 +1,5 @@
 // useAuth.js
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setUser,
   logout,

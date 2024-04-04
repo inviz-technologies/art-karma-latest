@@ -18,6 +18,7 @@ import allReducers from "../features/index";
 import storage from "redux-persist/lib/storage";
 import { category } from "../apis/category.api";
 import { product } from "../apis/product.api";
+import { order } from "../apis/order.api";
 const persistConfig = {
   key: "root",
   storage,
@@ -52,7 +53,8 @@ export const store = configureStore({
     })
       .concat(userAuth.middleware)
       .concat(category.middleware)
-      .concat(product.middleware),
+      .concat(product.middleware)
+      .concat(order.middleware),
 });
 
 export const persistor = persistStore(store);
