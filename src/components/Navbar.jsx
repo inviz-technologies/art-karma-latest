@@ -23,7 +23,7 @@ import { logout } from "../redux/features/auth/authSlice";
 const Links = [
   { label: "Shop", icon: <CiShop />, link: "/shop" },
   { label: "Chat", icon: <TiMessages />, link: "/chat" },
-  { label: "Cart", icon: <CiShop />, link: "/cart" },
+  { label: "Orders", icon: <CiShop />, link: "/cart" },
 ];
 
 const NavLink = (props) => {

@@ -29,6 +29,7 @@ const persistConfig = {
     // product.reducerPath,
     "authSlice",
     "categorySlice",
+    "productSlice"
     // "productSlice",
   ],
 };
