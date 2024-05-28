@@ -10,18 +10,22 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useAddNewOrderMutation,
   useGetOrdersQuery,
+  useUpdateOrderMutation,
 } from "../../redux/apis/order.api";
 import Layout from "./Layout";
+import { removeProduct } from "../../redux/features/products/productSlice";
 
-function CartItem({ item }) {
+function CartItem({ item, products}) {
   const [quantity, setQuantity] = useState(1);
   const toast = useToast();
 
   const [AddNewOrder, { isLoading: isPending }] = useAddNewOrderMutation();
+  const [UpdateOrder, { isLoading: updateLoading }] = useUpdateOrderMutation();
+  const shippingFee = 100;
   const auth = useSelector((state) => state.authSlice);
 
   // Handler function to update the quantity value
@@ -29,25 +33,45 @@ function CartItem({ item }) {
     setQuantity(value);
   };
 
-  console.log("item order", item?.order);
+  console.log("item order", item);
 
   const handlePlaceOrder = async (product) => {
-    console.log("item", item)
+    console.log("item", item);
     try {
-      const payload = {
+      console.log("item console", item);
+
+      const orderPayload = {
         order: item?._id,
         user: auth?.user._id,
       };
 
-      await AddNewOrder(payload).unwrap();
+      const orderRes = await AddNewOrder(orderPayload).unwrap();
+
+      console.log("muneeb check 1".orderRes?.data?.order?._id);
+      if (orderRes?.data) {
+        const updateOrderPayload = {
+          id: orderRes?.data?.order?._id,
+          subTotal: item?._id == products[0]._id ? shippingFee + Number(item?.price) : Number(item?.price),
+          quantity: item?.quantity,
+        };
+
+        console.log("muneeb check 3", updateOrderPayload);
+
+        const _updateRes = await UpdateOrder(updateOrderPayload);
+
+        if (_updateRes) {
+          console.log("muneeb check 2", _updateRes);
+
+          toast({
+            title: "Order has been placed1!",
+            status: "success",
+            duration: 3000, // milliseconds
+            isClosable: true,
+          });
+        }
+      }
 
       // Display success toast
-      toast({
-        title: "Order has been placed!",
-        status: "success",
-        duration: 3000, // milliseconds
-        isClosable: true,
-      });
     } catch (error) {
       console.log("Error while adding item", error);
       toast({
@@ -60,35 +84,45 @@ function CartItem({ item }) {
   };
 
   return (
+    <VStack spacing={1} alignItems="stretch" padding={4}>
+      <HStack alignItems="center" padding={4}>
+        <Image
+          boxSize="100px"
+          objectFit="cover"
+          src={item?.images[0]?.imageUrl}
+          alt={item?.images[0]?.imageName}
+        />
+        <VStack align="stretch" flex="1">
+          <Text fontWeight="bold">{item?.name}</Text>
+          <Text>{item?.description}</Text>
+        </VStack>
+      </HStack>
+      <CartSummary
+        subtotal={item?.price}
+        shippingFee={shippingFee}
+        handlePlaceOrder={handlePlaceOrder}
+        item={item}
+        products={products}
+      />
+    </VStack>
+  );
+}
 
-          <VStack spacing={1} alignItems="stretch" padding={4}>
-            <HStack alignItems="center" padding={4}>
-              <Image
-                boxSize="100px"
-                objectFit="cover"
-                src={item?.images[0]?.imageUrl}
-                alt={item?.images[0]?.imageName}
-              />
-              <VStack align="stretch" flex="1">
-                <Text fontWeight="bold">{item?.name}</Text>
-                <Text>{item?.description}</Text>
-              </VStack>
-            </HStack>
-            <CartSummary
-              subtotal={item?.price}
-              shippingFee={100}
-              handlePlaceOrder={handlePlaceOrder}
-              item={item}
-            />
-          </VStack>
-        )}
-
-function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
+function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item, products }) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const total = subtotal + shippingFee;
+  const total = item?._id == products[0]._id ? subtotal + shippingFee : subtotal;
+  const dispatch = useDispatch()
 
   console.log("sub total", subtotal);
+
+  const handleRemove = () => {
+
+    
+    dispatch(removeProduct(item?._id))
+  }
+
+  console.log(products[0]?._id == item?._id)
   return (
     <VStack alignItems="stretch" spacing={4} marginTop={4}>
       <HStack justifyContent="space-between">
@@ -99,6 +133,8 @@ function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
           ${subtotal}
         </Text>
       </HStack>
+      {products[0]._id == item?._id && (
+
       <HStack justifyContent="space-between">
         <Text fontSize="lg" fontWeight="semibold">
           Shipping Fee:
@@ -107,6 +143,7 @@ function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
           ${shippingFee.toFixed(2)}
         </Text>
       </HStack>
+      )}
       <HStack justifyContent="space-between">
         <Text fontSize="xl" fontWeight="bold">
           Total:
@@ -114,6 +151,7 @@ function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
         <Text fontSize="xl" fontWeight="bold">
           ${total.toFixed(2)}
         </Text>
+        
       </HStack>
       <HStack spacing={10}>
         <Button
@@ -134,7 +172,14 @@ function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
           isLoading={isLoading}
         >
           Place Order
-        </Button>
+        </Button >
+        <Button variant="outline" colorScheme="red" 
+          size="lg"
+          maxW={"200px"}
+          onClick={handleRemove}
+          mt={"10"}>
+        Remove
+      </Button>
       </HStack>
     </VStack>
   );
@@ -142,7 +187,7 @@ function CartSummary({ subtotal, shippingFee, handlePlaceOrder, item }) {
 
 const Cart = () => {
   const { data, isLoading, isError, error } = useGetOrdersQuery();
-  const products = useSelector(state => state?.productSlice?.products);
+  const products = useSelector((state) => state?.productSlice?.products);
   if (isError) {
     return (
       <div>
@@ -182,7 +227,7 @@ const Cart = () => {
           align="stretch"
         >
           {products.map((item) => (
-            <CartItem key={item?._id} item={item} />
+            <CartItem key={item?._id} item={item} products={products}/>
           ))}
         </VStack>
         {/* <CartSummary subtotal={10} shippingFee={shippingFee} /> */}

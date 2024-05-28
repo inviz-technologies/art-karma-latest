@@ -32,11 +32,15 @@ export const order = createApi({
     }),
 
     UpdateOrder: build.mutation({
-      query: (payload, id) => ({
-        url: `orders/${id}`,
+      query: (payload) =>  {
+        const {id, ...rest} = payload 
+        
+        return {
+        
+        url: `orders/${payload.id}`,
         method: "PATCH",
-        body: payload,
-      }),
+        body: rest,
+      }},
       invalidatesTags: ["Order"],
     }),
   }),

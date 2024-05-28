@@ -51,13 +51,18 @@ const Product = () => {
   const handleAddToCart = async () => {
     if (!product) return;
 
+    let _product = {...product, quantity: quantity}
+
+    console.log("_product", _product)
+
+
     try {
       const payload = {
         order: product._id,
         user: auth?.user._id,
       };
 
-      dispatch(setProducts(product))
+      dispatch(setProducts(_product))
 
       // Display success toast
       toast({
@@ -67,8 +72,6 @@ const Product = () => {
         isClosable: true,
       });
 
-      // Dispatch the updated product to the Redux store
-      dispatch(setProducts(product));
     } catch (error) {
       console.log("Error while adding item", error);
       toast({
